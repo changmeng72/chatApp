@@ -81,7 +81,7 @@ export default function LoginBox() {
       >
         <Button
           variant="contained"
-          boxShadow={2}
+          
           onClick={() => setLogin((pre) => !pre)}
           style={{
             color: "rgba(23,45,122,0.3)",
@@ -110,7 +110,7 @@ export default function LoginBox() {
         </div>
       </div>
 
-      <Box style={styles.box2} container align="center">
+      <Box style={styles.box2}   align="center">
         <Box style={{ width: "250px" }} align="start">
           <Typography
             variant="h5"
@@ -131,7 +131,7 @@ export default function LoginBox() {
               const url = login ? loginUrl : signupUrl;
 
               const json = await postData(url, values);
-              console.log("json:", json);
+              
               if (!!json) {
                 if (json.result === "ok") {
                   setOpenAlert(true);
@@ -140,14 +140,14 @@ export default function LoginBox() {
                   setupSeverity('success');
                   router.replace("/");
                 } else {
-                  console.log("openAlert:", openAlert);
+                  
                   setOpenAlert(true);
                   setAlertContent(json.description);
                   setAlertTitle("Your request failed");
                   setupSeverity('error');
                 }
               } else {
-                console.log("openAlert:", openAlert);
+          
                 setOpenAlert(true);
                 setAlertContent("The request is not sent...");
                 setAlertTitle("Your requist failed");

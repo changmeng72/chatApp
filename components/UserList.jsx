@@ -72,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function UserList({ user, users, selectUser }) {
+export default function UserList({ user, users, selectUser,searchUser,logout }) {
   const styles = useStyles();
   const [searchText, setSearchText] = useState("");
     const [anchorEl, setAnchorEl] = useState(null);
@@ -86,7 +86,7 @@ export default function UserList({ user, users, selectUser }) {
     const handleLogout = async () => {
         const url = "/api/logout";
         const json = await postData(url, {});
-        router.replace("/login");
+        logout();
     }
 
 
@@ -112,11 +112,26 @@ export default function UserList({ user, users, selectUser }) {
             value={searchText}
             className={styles.searchBar}
             onChange={(newValue) => setSearchText(newValue)}
-            onRequestSearch={() => {}}
+            onRequestSearch={() => {
+              
+              let find = 0;
+              for (let u of users) {
+                if (u.username == searchText) {
+                  find = 1;
+                  selectUser(u);
+                }
+              }
+              if (find == 0) {
+                
+                searchUser(searchText);
+              }
+               
+               
+            }}
           />
         </Box>
         <Box className={styles.userlistbox}>
-          {console.log("user:", users[0])}
+         
 
           {users.map((user) => {
             return (

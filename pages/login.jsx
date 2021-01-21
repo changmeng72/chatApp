@@ -5,8 +5,9 @@ import LoginBox from '../components/LoginBox'
 //import bgImg from url(${bgImg})
 //import chatImg from '../assets/chat.png'
 
-const styles = { //425*700
-    paperContainer: {
+ 
+const styles =  {
+    root: {
         height: '560px',
         width: '800px',
         backgroundImage: 'url("/assets/bg-img.png")',
@@ -36,19 +37,22 @@ const styles = { //425*700
         
     }
     
+
 };
  
+ 
 export default function Login() {    
+    
     return <>
          <Container maxWidth='md'>
-            <Paper style={styles.paperContainer}>                
+            <Paper style = {styles.root}>                
                  
-                    <Box style={styles.box1} >  
-                        <div style={{ color: 'white', }}>...</div>
-                        <div style={{ color: 'white', }}>Conversation with anyone</div>
-                        <div style={{  color: 'white', }}>with any language</div>
+                    <Box style = {styles.box1} >  
+                        <Box style={{ color: 'white', }}>...</Box>
+                        <Box style={{ color: 'white', }}>Conversation with anyone</Box>
+                        <Box style={{ color: 'white', }}>with any language</Box>
                    </Box>
-                    <Box style={styles.box2}>
+                    <Box style = {styles.box2}>
                     <LoginBox /> 
                     </Box>
                  
