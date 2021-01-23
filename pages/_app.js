@@ -1,50 +1,37 @@
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { ThemeProvider } from '@material-ui/styles';
-import App from 'next/app';
 import React from 'react';
-import Head from 'next/head';
 import PropTypes from 'prop-types';
+import Head from 'next/head';
+import { ThemeProvider } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import theme from '../src/theme';
+import './font.css'
+export default function MyApp(props) {
+  const { Component, pageProps } = props;
 
-import { theme } from '../lib/theme';
- 
-//import Header from '../components/Header';
- 
-
- 
-const propTypes = {
-  Component: PropTypes.elementType.isRequired,
-  pageProps: PropTypes.object.isRequired, // eslint-disable-line
-};
-
-class MyApp extends App {
-  componentDidMount() {
+  React.useEffect(() => {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector('#jss-server-side');
-    if (jssStyles && jssStyles.parentNode) {
-      jssStyles.parentNode.removeChild(jssStyles);
+    if (jssStyles) {
+      jssStyles.parentElement.removeChild(jssStyles);
     }
-  }
+  }, []);
 
-  render() {
-    const { Component, pageProps } = this.props;
-
-    // console.log(pageProps);
-
-    return (
+  return (
+    <React.Fragment>
+      <Head>
+        <title>My page</title>
+        <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+      </Head>
       <ThemeProvider theme={theme}>
-        <Head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        </Head>
+        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-         
         <Component {...pageProps} />
       </ThemeProvider>
-    );
-  }
+    </React.Fragment>
+  );
 }
 
-MyApp.propTypes = propTypes;
-
-
-
-export default MyApp;
+MyApp.propTypes = {
+  Component: PropTypes.elementType.isRequired,
+  pageProps: PropTypes.object.isRequired,
+};

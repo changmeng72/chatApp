@@ -129,12 +129,24 @@ export default function MessageBox({ peer, users }) {
             
         },[]
     );*/
-    
+    function localTimeStamp(dt) {
+
+        const timeStamp = new Date(dt);
+        return timeStamp.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+        });
+        
+        
+    }
+
+
      useEffect(
          () => {
              if(ref && ref.current)
                  ref.current.scrollIntoView();
-             console.log(1);
+             
       } 
     );
 
@@ -155,10 +167,12 @@ export default function MessageBox({ peer, users }) {
                                     </ListItemAvatar>
                                     <ListItemText
                                         
-                                        primary={<div className={m.sender==0?styles.textRightP:styles.textLeftP}>{m.sender==0? m.datetime: u.username + '   '+ m.datetime}</div>
+                                        primary={<span className={m.sender == 0 ? styles.textRightP : styles.textLeftP}>
+                                            {m.sender == 0 ? localTimeStamp(m.datetime) : u.username + '   ' + localTimeStamp(m.datetime)}
+                                        </span>
                                              
                                         }
-                                        secondary={<div  className={m.sender==0?styles.textRighS:styles.textLeftS}>{ m.text}</div>
+                                        secondary={<span  className={m.sender==0?styles.textRighS:styles.textLeftS}>{ m.text}</span>
                                              
                                         }
                                     />

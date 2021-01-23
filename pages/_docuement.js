@@ -21,6 +21,7 @@ class MyDocument extends Document {
           />
           <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
           
+
           <style>
             {`
               a, a:focus {
@@ -60,6 +61,7 @@ class MyDocument extends Document {
             fontWeight: '300',
             lineHeight: '1.5em',
             backgroundColor: '#F7F9FC',
+             
           }}
         >
           <Main />

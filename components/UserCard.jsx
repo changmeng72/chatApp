@@ -95,11 +95,11 @@ export default function UserCard({ user, selectUser }) {
               </Badge>
             </ListItemAvatar>
             <ListItemText
-              primary={<div className={styles.textleftP}>{user?.username}</div>}
+              primary={<span className={styles.textleftP}>{user?.username}</span>}
               secondary={
-                <div className={styles.textleftS}>
-                  {user?.lastMessage ? user.lastMessage : ""}
-                </div>
+                <span className={styles.textleftS}>
+                  {user?.lastMessage ? (user.lastMessage.length>20 ? user.lastMessage.slice(0,20) + "...": user.lastMessage) : ""}
+                </span>
               }
             />
 
