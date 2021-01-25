@@ -1,15 +1,23 @@
 import { Formik, Form, Field } from "formik";
-import { Button, Box, Typography, IconButton, Collapse } from "@material-ui/core";
-import CloseIcon from '@material-ui/icons/Close';
+import {
+  Button,
+  Box,
+  Typography,
+  IconButton,
+  Collapse,
+  makeStyles,
+  withStyles,FormHelperText
+} from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import { TextField } from "formik-material-ui";
 import * as Yup from "yup";
 import { useState } from "react";
 import postData from "../utils/postData";
 import { useRouter } from "next/router";
-import { blue } from '@material-ui/core/colors'
+import { blue, grey } from "@material-ui/core/colors";
 
-const styles = {
+const useStyles = makeStyles((theme) => ({
   inputProps: {
     fontSize: "12px",
     fontFamily: "'Open Sans', sans-serif",
@@ -22,15 +30,14 @@ const styles = {
     letterSpacing: "2px",
   },
   inputLabelProps: {
-    fontSize: "40px",
+    fontSize: "5px",
     fontFamily: "'Open Sans', sans-serif",
     fontWeight: 400,
     color: "primary",
   },
 
   inputStyle: {
-    width: "250px",
-    height: "80px",
+    height: "85px",
   },
   formStyle: {
     display: "flex",
@@ -44,83 +51,120 @@ const styles = {
     height: "100px",
   },
   box2: {
-    width: "460px",
+    marginTop: "40px",
+    width: "60%",
+    margin: "auto",
   },
   buttonLogin: {
     display: "block",
-    color:  'white',
+    color: "white",
     textTransform: "none",
-    backgroundColor: blue[700],
-    height: "35px",
-    width: "75px",
+    backgroundColor: 'rgb(58, 141, 255)',
+    padding: "12px 30px 12px 30px",
     fontFamily: "'Open Sans', sans-serif",
-    fontWeight: "400",
-    fontSize: "10px",
+    fontWeight: "600",
+    fontSize: "13px",
+    marginBottom: "30px",
+    width: '120px'
+    
   },
-};
+  topBar: {
+    display: "flex",
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    height: "100px",
+    fontFamily: "'Open Sans', sans-serif",
+   
+  },
+  buttonSwitch: {
+    color: 'rgb(58, 141, 255)',
+    textTransform: "none",
+    backgroundColor: "white",
+    padding: "12px 30px 12px 30px",
+
+    fontWeight: "600",
+    fontSize: "13px",
+    marginRight: "25px",
+    color: blue[500],
+  },
+  formBox: {
+    marginTop: "40px",
+  },
+  hidden: {
+    display: "none",
+  },
+  alertStyle: {
+    position: "absolute",
+    top: "50px",
+    align:'center'
+  },
+  root: {
+     position: "relative",
+  }
+}));
 
 const loginUrl = "/api/login";
 const signupUrl = "/api/signup";
+
+const CssTextField = withStyles({
+  root: {
+    "& label.Mui-focused": {
+      color: blue[500],
+    },
+    "& .MuiInput-underline:after": {
+      borderWidth: "3px",
+    
+    },
+     "& .MuiInput-underline:focus": {
+      
+      borderColor:'rgb(58, 141, 255)'
+    },
+  },
+})(TextField);
+
 export default function LoginBox() {
   const [login, setLogin] = useState(true);
   const [openAlert, setOpenAlert] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [alertContent, setAlertContent] = useState("");
-  const [severity, setupSeverity] = useState('success');
+  const [severity, setupSeverity] = useState("success");
   const router = useRouter();
-
+  const styles = useStyles();
   return (
-    <>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row-reverse",
-          alignItems: "center",
-          height: "100px",
-        }}
-      >
+    <Box className={styles.root}>
+      <Box className={styles.topBar}>
         <Button
           variant="contained"
-          boxShadow={2}
           onClick={() => setLogin((pre) => !pre)}
-          style={{
-            color: "rgba(23,45,122,0.3)",
-            textTransform: "none",
-            backgroundColor: "white",
-            height: "35px",
-            width: "75px",
-            fontFamily: "'Open Sans', sans-serif",
-            fontWeight: "400",
-            fontSize: "10px",
-            marginRight: "30px",
-          }}
+          className={styles.buttonSwitch}
         >
-          {login ? "SignUp" : "Login"}
+          {login ? "Create account" : "Login"}
         </Button>
 
-        <div
+        <span
           style={{
             fontFamily: "'Open Sans', sans-serif",
             fontWeight: "400",
-            fontSize: "10px",
-            marginRight: "10px",
+            fontSize: "13px",
+            marginRight: "30px",
+            color: grey[300],
           }}
         >
-          {login ? "Not have an account?" : "Already have an account?"}
-        </div>
-      </div>
+          {login ? "Don't have an account?" : "Already have an account?"}
+        </span>
+      </Box>
 
-      <Box style={styles.box2} container align="center">
-        <Box style={{ width: "250px" }} align="start">
+      <Box className={styles.box2} align="center">
+        <Box align="start">
           <Typography
             variant="h5"
             gutterBottom
             style={{ fontFamily: "'Open Sans', sans-serif", fontWeight: "600" }}
           >
-            {login ? "Login" : "Create an account"}
+            {login ? "Welcome back!" : "Create an account."}
           </Typography>
         </Box>
-        <Box style={{ width: "250px" }} align="center">
+        <Box align="center" className={styles.formBox}>
           <Formik
             initialValues={{
               username: "",
@@ -131,27 +175,29 @@ export default function LoginBox() {
               const url = login ? loginUrl : signupUrl;
 
               const json = await postData(url, values);
-              console.log("json:", json);
+
               if (!!json) {
                 if (json.result === "ok") {
                   setOpenAlert(true);
-                  setAlertContent(login? 'You have logged in successfully . Wait a moment please, application is running...  ' : 'Your acccount has been created successfully, and  you  have logged in . Wait a moment please, application is running...  ');
-                  setAlertTitle( "Operation successful");
-                  setupSeverity('success');
+                  setAlertContent(
+                    login
+                      ? "You have logged in successfully . Wait a moment please, application is running...  "
+                      : "Your acccount has been created successfully, and  you  have logged in . Wait a moment please, application is running...  "
+                  );
+                  setAlertTitle("Operation successful");
+                  setupSeverity("success");
                   router.replace("/");
                 } else {
-                  console.log("openAlert:", openAlert);
                   setOpenAlert(true);
                   setAlertContent(json.description);
                   setAlertTitle("Your request failed");
-                  setupSeverity('error');
+                  setupSeverity("error");
                 }
               } else {
-                console.log("openAlert:", openAlert);
                 setOpenAlert(true);
                 setAlertContent("The request is not sent...");
                 setAlertTitle("Your requist failed");
-                setupSeverity('error');
+                setupSeverity("error");
               }
             }}
             validationSchema={
@@ -160,7 +206,9 @@ export default function LoginBox() {
                     email: Yup.string()
                       .email("Invalid email address")
                       .required("No email address provided"),
-                    passw: Yup.string().required("No password provided.").min(5,"The length of password should be 6 or more!"),
+                    passw: Yup.string()
+                      .required("No password provided.")
+                      .min(5, "The length of password should be 6 or more!"),
                   })
                 : Yup.object({
                     username: Yup.string()
@@ -169,68 +217,86 @@ export default function LoginBox() {
                     email: Yup.string()
                       .email("Invalid email address")
                       .required("No email address provided"),
-                    passw: Yup.string().required("No password provided.").min(5,"The length of password should be 6 or more!"),
+                    passw: Yup.string()
+                      .required("No password provided.")
+                    .min(5, "The length of password should be 6 or more!"),
+                    confirmPassw: Yup.string()
+                       .oneOf([Yup.ref('passw'), null], 'Passwords must match')
                   })
             }
           >
             <Form>
               <Field
                 type="text"
-                component={TextField}
+                component={CssTextField}
                 name="username"
                 label="Username"
-                inputProps={{ style: styles.inputProps }}
-                style={login ? { display: "none" } : styles.inputStyle}
+                inputProps={{ className: styles.inputProps }}
+                className={login ? styles.hidden : styles.inputStyle}
+                fullWidth
+                hidden={login}
               />
               <Field
                 type="text"
-                component={TextField}
+                component={CssTextField}
                 name="email"
                 label="E-mail address"
-                inputProps={{ style: styles.inputProps }}
-                style={styles.inputStyle}
+                inputProps={{ className: styles.inputProps ,errorStyle:{color: 'green'}}}
+                className={styles.inputStyle}
+                fullWidth
+                 
               ></Field>
               <Field
                 type="password"
-                component={TextField}
+                component={CssTextField}
                 name="passw"
                 label="Password"
-                inputProps={{ style: styles.passwordProps }}
-                style={styles.inputStyle}
+                inputProps={{ className: styles.passwordProps }}
+                className={styles.inputStyle}
+                fullWidth
+              ></Field>
+              <Field
+                type="password"
+                component={CssTextField}
+                name="confirmPassw"
+                label="Reinput Password"
+                inputProps={{ className: styles.passwordProps }}
+                className={login ? styles.hidden : styles.inputStyle}
+                fullWidth
+                helperText="Please input your password again"
               ></Field>
 
               <Button
                 type="submit"
-                style={styles.buttonLogin}
-                variant="contained"                 
+                className={styles.buttonLogin}
+                variant="contained"
               >
                 {login ? "Login" : "Create"}
               </Button>
             </Form>
           </Formik>
-        </Box>
+        </Box>        
       </Box>
-
-      <Collapse in={openAlert}>
-        <Alert
-          severity={severity}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpenAlert(false);
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-        >
-          <AlertTitle>{alertTitle}</AlertTitle>
-          {alertContent}
-        </Alert>
-      </Collapse>
-    </>
+      <Collapse in={openAlert} className={styles.alertStyle}>
+          <Alert
+            severity={severity}
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setOpenAlert(false);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            <AlertTitle>{alertTitle}</AlertTitle>
+            {alertContent}
+          </Alert>
+        </Collapse>
+    </Box>
   );
 }

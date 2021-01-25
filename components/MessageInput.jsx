@@ -1,34 +1,41 @@
-import { Formik, Field, Form } from "formik";
-import { TextField } from "formik-material-ui";
-import { Button, Box, TextareaAutosize } from "@material-ui/core";
+import {
+  IconButton,
+  Box,
+  Paper,
+  TextField,
+  InputAdornment,
+  InputBase,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { useState, useRef } from "react";
-
+import SearchIcon from "@material-ui/icons/Search";
+import PhotoLibraryOutlinedIcon from "@material-ui/icons/PhotoLibraryOutlined";
+import SentimentSatisfiedOutlinedIcon from "@material-ui/icons/SentimentSatisfiedOutlined";
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
-
     display: "flex",
     flexDirection: "row",
+    backgroundColor: 'hsl(220, 37%, 97%)',
+    borderRadius:"10px",
+    marginTop: "10px",
+    marginBottom: "10px",
+    marginRight: "15px",
+    fontFamily: "'Open Sans', sans-serif",
+    padding:"20px 0 20px 25px"
+    
   },
   input: {
-    width: "100%",
-    fontSize: "14px",
-    padding: "15px 25px 15px 25px",
-    border: "none",
-    backgroundColor: "rgba(225,225,225,0.2)",
-    borderRadius: "3px",
-    resize: "none",
-    scrollbarWidth: "none",
-    marginTop: "10px",
-      marginBottom: "10px",
-    marginRight: "5px",
+     flex:1,
+    fontSize: "18px",
+    fontFamily: "'Open Sans', sans-serif",
+    border: "none",     
     "&:focus": {
-      outline: "none",
-      fontFamily: "'Open Sans', sans-serif",
+      outline: "none",      
       fontWeight: 400,
     },
   },
+
 }));
 
 export default function MessageInput({ sendMessage, peer }) {
@@ -36,25 +43,33 @@ export default function MessageInput({ sendMessage, peer }) {
   const [text, setText] = useState("");
 
   return (
-    <Box className={styles.root}>
-      <input
-        type="text"
-        disabled={peer===null}
-        aria-label="Typing something,press Enter to send"
-        placeholder="Typing something ,press Enter to send"
-        onChange={(e) => setText(() => e.target.value)}
-        onKeyUp={(e) => {
-          const keyCode = e.keyCode;
+    <>
+       
+      <Paper className={styles.root} elevation={0}>
+        <InputBase
+          className={styles.input}
+          disabled={peer===null}
+          placeholder="Typing something,press Enter to send"
+          inputProps={{ "aria-label": "search google maps" }}
+          onChange={(e) => setText(() => e.target.value)}
+          onKeyUp={(e) => {
+            const keyCode = e.keyCode;
             if (keyCode === 13) {
-                if (text?.length > 0) {                     
-                    sendMessage(text);
-                    setText(() => "");
-                    e.target.value = "";
-                }
-          }
-        }}
-        className={styles.input}
-      />
-    </Box>
+              if (text?.length > 0) {
+                sendMessage(text);
+                setText(() => "");
+                e.target.value = "";
+              }
+            }
+          }}
+        />
+        <IconButton disabled={peer===null}  >
+          <SentimentSatisfiedOutlinedIcon style={{ color: 'hsl(217, 29%, 88%)' }} fontSize="large"/>
+        </IconButton>
+        <IconButton disabled={peer===null}>
+          <PhotoLibraryOutlinedIcon style={{ color: 'hsl(217, 29%, 88%)' }} fontSize="large" />
+        </IconButton>
+      </Paper>
+    </>
   );
 }

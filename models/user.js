@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const encrypt = require('../utils/encrypt');
 const { findByIdAndUpdate } = require('./missingMessages');
 
+
+
 const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, lowercase: true, required: true ,unique:true},
@@ -23,7 +25,7 @@ UserSchema.statics.signUp = async function (username,email,passw) {
         const users = await this.find({ email });
         
             if (users?.length > 0)
-                return { result: "nok", resCode:401 ,description: "Email has already existed in the system" };
+                return { result: "nok", resCode:409 ,description: "Email has already existed in the system" };
              console.log('users: ',users);
             passw = encrypt(passw);
         const user = await this.create({ username, email, passw });
@@ -48,7 +50,7 @@ UserSchema.statics.signIn = async function (email,passw) {
                
     } catch (err) {
         console.error(err);
-        return { result: "nok", reCode:500,description:"System busy,please try latter" };
+        return { result: "nok", resCode:500,description:"System busy,please try latter" };
     }   
 }
 UserSchema.statics.updateStatus = async function (userid, newStatus) {
@@ -72,7 +74,29 @@ UserSchema.statics.getUsers = async function () {
         return {result:'nok',description:"system failure"}
     }
 }
+UserSchema.statics.getUsersByName = async function (searchName) {
+    try {
+        console.log('get users');
+        const users = await this.find({ username: { $regex: searchName, $options: 'i' } } ).select(this.publicField());
+       
+        return { result: 'ok', users };
+    } catch (err) {
+        return {result:'nok',description:"system failure"}
+    }
+}
 
+UserSchema.statics.getUserByName = async function (username) {
+    try {
+        console.log('get users');
+        const user = await this.findOne({ username })?.select(this.publicField());
+        if (user)
+            return { result: 'ok', user };
+        else
+            return { result: 'nok', description: 'not found the user' };
+    } catch (err) {
+        return {result:'nok',description:"system failure"}
+    }
+}
 UserSchema.statics.getUser = async function (userId) {
     try {
         console.log('get user');
