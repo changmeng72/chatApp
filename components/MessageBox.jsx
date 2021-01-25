@@ -2,27 +2,11 @@
 import { makeStyles } from '@material-ui/core/styles';
 import {Box,List,ListItem,ListItemAvatar,ListItemText,Avatar,Typography} from '@material-ui/core'
 import React,{useRef,useEffect, useCallback} from 'react'
+import { Autocomplete } from '@material-ui/lab';
  
 
 const useStyles = makeStyles((theme) => ({
-    self: {  
-        clear:'both',
-        maxWidth:'60%'  ,
-        display: 'flex',
-        flexDirection: 'row-reverse',
-        alignItems: 'flex-start',
-        float:'right'  
-
-    },
-    other: {
-        maxWidth:'60%'  ,
-        display: 'flex',
-        flexDirection: 'row',
-         alignItems:'flex-start',
-        
-        
-    },
-    messageBox: {
+    root: {
         width: '100%', 
         backgroundColor: theme.palette.background.paper,
         overflow: 'auto',
@@ -31,21 +15,36 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 400,
         marginTop:'5px',
     },
-    messageList: {
-          position:'absolute',
-          width: '100%',
-          maxHeight: '100%',
-          padding: 0,
-          marginBottom: '10px',
-               
-          backgroundColor: theme.palette.background.paper,
+    self: {  
+        clear:'both',
+        maxWidth:'75%'  ,
+        display: 'flex',
+        flexDirection: 'row-reverse',
+        alignItems: 'flex-start',
+        float:'right'  
+
     },
+    other: {
+        maxWidth:'75%'  ,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems:'flex-start',        
+    },
+    dateLine: {
+        display: 'flex',
+        justifyContent: 'center',
+        fontSize: '10px',
+        color: 'gray',
+    },
+    
+     
      textLeftP: {
         display: 'inline',
         clear: 'both',
         float: 'left',
         fontSize: '10px',
         color: 'gray',
+        fontFamily: "'Open Sans', sans-serif",
          
     },
     textLeftS: {
@@ -53,37 +52,48 @@ const useStyles = makeStyles((theme) => ({
         backgroundImage: `linear-gradient(rgba(58,144,255,0.85),rgba(134,185,255,0.85))`,        
         padding: "6px 5px 6px 5px", 
         border: '0px solid black ',         
-        borderRadius: '8px',
+        borderRadius: '12px',
         borderTopLeftRadius:'0px',
-        fontSize: '14px',
+        fontSize: '16px',
         color:'white',
         display: 'inline',
         clear: 'both',
-        float:'left'
+        float: 'left',
+        fontFamily: "'Open Sans', sans-serif",
+        wordWrap: 'break-word',
+        padding: '10px 20px 10px 20px',
+        maxWidth: '100%',
+        wordBreak: 'break-word',
+        
     },
     textRightP: {
         display: 'inline',
         clear: 'both',
         float: 'right',
-        fontSize: '10px',
+        fontSize: '12px',
         color: 'gray',
         margin: "0 15px 0 0",
+        fontFamily: "'Open Sans', sans-serif",
         
     },
     textRighS: {
-        backgroundColor: 'rgba(180,180,180,0.2)',
+        backgroundColor: 'hsl(220, 37%, 97%)',
         padding: '6px 5px 6px 5px', 
         border: '0px solid black ',
         margin:"0 15px 0 0",
-        borderRadius: '8px',
-        borderTopRightRadius:'0px',
-        fontSize: '14px',
-        color:'black',
+        borderRadius: '12px',
+        borderBottomRightRadius:'0px',
+        fontSize: '16px',
+        fontWeight : 500,
+        color:'hsl(221, 39%, 70%)',
         display: 'inline',
         clear: 'both',
         float: 'right',
-        maxWidth: '300px',
-        wordWrap:'break-word'
+        maxWidth: '100%',
+        
+        fontFamily: "'Open Sans', sans-serif",
+        padding: '10px 20px 10px 20px',
+        wordBreak: 'break-word',
         
     },
      
@@ -93,8 +103,7 @@ const useStyles = makeStyles((theme) => ({
      empty: {
          width:'40%'
     },
-    root: {
-         
+    messageList: {         
     width: '100%',
     maxWidth: '100%',
     backgroundColor: theme.palette.background.paper,
@@ -117,7 +126,10 @@ const useStyles = makeStyles((theme) => ({
                                 <ListItemText primary={m?.sender} secondary={m.text} className={styles.text}/>    */
 export default function MessageBox({ peer, users }) {
     const styles = useStyles();
-     const ref = useRef(null);
+    const ref = useRef(null);
+    let todayDate = new Date();
+    const todayDateString = todayDate.toLocaleDateString();
+    let lastDateString = '';
     /*
     useEffect(
         () => {
@@ -132,14 +144,17 @@ export default function MessageBox({ peer, users }) {
     function localTimeStamp(dt) {
 
         const timeStamp = new Date(dt);
-        return timeStamp.toLocaleTimeString([], {
+        const timeString =  timeStamp.toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
             hour12: false,
         });
+        const dateString = timeStamp.toLocaleDateString();
         
+        return { timeString, dateString :dateString== todayDateString? 'Today':dateString };
         
     }
+    
 
 
      useEffect(
@@ -152,12 +167,22 @@ export default function MessageBox({ peer, users }) {
 
     return (
         <> 
-        <Box className={styles.messageBox}  >    
-            <List className={styles.root} >            
+        <Box className={styles.root}  >    
+                <List >
+                             
                 {users?.map((u) => {
                     if (peer?._id === u._id) {
-                        return u.messages.map((m,index) => {                            
+                        return u.messages.map((m, index) => {      
+                            let showDate = false;
+                            const { timeString, dateString } = localTimeStamp(m.datetime);
+                            if (dateString != lastDateString) {
+                                showDate = true;
+                                lastDateString = dateString;
+                            }
+
                             return (
+                                <>
+                                {showDate ? <ListItem className={styles.dateLine}> -------{dateString}------ </ListItem> : ''}
                                 <ListItem className={m.sender == 0 ? styles.self : styles.other} key={index} ref={ index===u.messages.length-1? ref:null} >
                                     <ListItemAvatar hidden={m.sender == 0}>
                                         {u.avatar?
@@ -168,7 +193,7 @@ export default function MessageBox({ peer, users }) {
                                     <ListItemText
                                         
                                         primary={<span className={m.sender == 0 ? styles.textRightP : styles.textLeftP}>
-                                            {m.sender == 0 ? localTimeStamp(m.datetime) : u.username + '   ' + localTimeStamp(m.datetime)}
+                                            {m.sender == 0 ? timeString : u.username + '   ' + timeString}
                                         </span>
                                              
                                         }
@@ -177,7 +202,7 @@ export default function MessageBox({ peer, users }) {
                                         }
                                     />
                                 </ListItem>
-                                
+                                </>
                                                        
                             );
                            
@@ -194,3 +219,6 @@ export default function MessageBox({ peer, users }) {
         </>
     );
 }
+
+   
+ 

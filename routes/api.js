@@ -40,7 +40,7 @@ apiRouter.post('/signup', async (req, res) => {
     
     
 
-    if (!!req.body.email && !!req.body.passw && !!req.body.username) {
+    if (!!req.body.email && !!req.body.passw && !!req.body.username && req.body.passw.length>=6) {
         const signResult = await User.signUp(req.body.username, req.body.email, req.body.passw);
         if (signResult.result === 'ok') {
             const token = jwt.sign(signResult.user.id, process.env.ACCESS_TOKEN_SECRET);
@@ -58,7 +58,7 @@ apiRouter.post('/signup', async (req, res) => {
     
 });
 
-apiRouter.post('/logout', async (req, res) => {
+apiRouter.post('/logout',auth(), async (req, res) => {
 
     req.session.destroy();
     res.json({result:'ok'});   
@@ -81,7 +81,12 @@ apiRouter.get('/token',auth(), async (req, res) => {
 apiRouter.get('/users', auth(), async (req, res) => {
      
     try {
-        const users = await User.getUsers();
+        let users;
+        console.log("username:",req.query.username);
+        if (req.query && req.query.username)
+            users = await User.getUsersByName(req.query.username);
+        else
+            users = await User.getUsers();
         res.json(users);
     } catch (err) {
         res.status(500).json({result:'nok',description:'system failure'});
@@ -89,6 +94,7 @@ apiRouter.get('/users', auth(), async (req, res) => {
       
     
 });
+ 
 
 apiRouter.get('/user',auth(), async (req, res) => {
     try {

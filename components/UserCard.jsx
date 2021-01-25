@@ -5,9 +5,10 @@ import {
   ListItemText,
   ListItemAvatar,
   Badge,
-  List,
+  List, 
 } from "@material-ui/core";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
+import {green} from "@material-ui/core/colors"
 
 const StyledBadge = withStyles((theme) => ({
   badge: {
@@ -30,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
     float: "left",
     clear: "both",
     fontFamily: "'Open Sans', sans-serif",
-    fontWeight: 600,
+    fontWeight: 700,
     fontSize: "12px",
   },
   textleftS: {
@@ -45,35 +46,65 @@ const useStyles = makeStyles((theme) => ({
     clear: "both",
     float: "right",
     clear: "both",
+    color: 'rgb(208, 218, 233)'
   },
-  user: {
-    alignItems: "center",
-
+  userCard: {
+     
     "&:hover": {
-      backgroudColor: "red",
+        
+      backgroundColor: 'white',
     },
-    backgroudColor: "red",
+    
   },
   online: {
-    backgroundColor: 'green',
+    width: '14px',
+    height:'14px',
+    backgroundColor: 'rgb(28, 237, 132)',
+    right: 14,
+    top: 43,
+    border: `2px solid ${theme.palette.background.paper}`,
+    borderRadius:'50%'
+    
     
   },
    offline: {
-    backgroundColor: 'gray',
+     backgroundColor: 'rgb(208, 218, 233)',
+     width: '14px',
+    height:'14px',
+     
+    right: 11,
+    top: 35,
+    border: `2px solid ${theme.palette.background.paper}`,
+    borderRadius:'50%'
     
+    
+  },
+   
+  bigAvatar: {
+    margin: theme.spacing(1),
+    width: theme.spacing(7),
+    height: theme.spacing(7),
+  },
+  unread: {
+   backgroundColor: 'rgb(58, 141, 255)',
   }
 }));
 
 
-export default function UserCard({ user, selectUser }) {
-  const styles = useStyles();
+export default function UserCard({ user, selectUser, inList,hideUserList }) {
+  const styles = useStyles();  
   return (
     <>
-      <div className={styles.user}>
+      <div  >
         <List>
           <ListItem
+             button = {inList}
+            classes={inList?{root:styles.userCard}:{}}
             onClick={() => {
-              selectUser(user);
+              if (inList) {
+                selectUser(user);
+                hideUserList(true);
+              }
             }}
           >
             <ListItemAvatar>
@@ -88,12 +119,12 @@ export default function UserCard({ user, selectUser }) {
                 }}
               >
                 {user && user.avatar ? (
-                  <Avatar alt={user?.username} src={user?.avatar} />
+                  <Avatar alt={user?.username} src={user?.avatar}  className={styles.bigAvatar} />
                 ) : (
-                  <Avatar alt={user?.username} />
+                  <Avatar alt={user?.username} className={styles.bigAvatar}/>
                 )}
               </Badge>
-            </ListItemAvatar>
+            </ListItemAvatar >
             <ListItemText
               primary={<span className={styles.textleftP}>{user?.username}</span>}
               secondary={
@@ -105,7 +136,7 @@ export default function UserCard({ user, selectUser }) {
 
             <div className={styles.textRight}>
               {user?.unReadMessages > 0 ? (
-                <Badge badgeContent={user?.unReadMessages} color="primary" />
+                <Badge badgeContent={user?.unReadMessages} color = "primary" />
               ) : (
                 ""
               )}

@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
     color: blue[500],
   },
   formBox: {
-     
+    marginTop: "40px",
   },
   hidden: {
     display: "none",

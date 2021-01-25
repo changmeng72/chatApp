@@ -1,13 +1,6 @@
 import socketIOClient from "socket.io-client";
-import {
-  Box,
-  Container,
-  CssBaseline,
-  Grid,
-  Button,
-  Paper,
-} from "@material-ui/core";
-import { useState, useEffect, useCallback } from "react";
+import { useMediaQuery,  Box,  Container,  CssBaseline,  Paper,} from "@material-ui/core";
+import { useState, useEffect } from "react";
 
 import UserList from "../components/UserList";
 import ChatBox from "../components/ChatBox";
@@ -16,24 +9,47 @@ import { useRouter } from "next/router";
 import postData from "../utils/postData";
 
 import { makeStyles } from "@material-ui/core/styles";
+import MenuRoundedIcon from '@material-ui/icons/MenuRounded';
 
 const useStyles = makeStyles((theme) => ({
+   
   root: {
-    height: 600,
-    width: 900,
-    marginTop: 30,
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'row',
+
+    
+  },
+  paper: {
+    marginTop:"10px",
+    height: "calc(100vh - 15px)",
+    width: "100%",
   },
   userlist: {
-    width: 340,
-    padding: " 0 0px 5px 5px",
+    minWidth: 320,
+    padding: " 0 0px 0px 0px",     
+    height: "calc(100vh - 15px)",
+    [theme.breakpoints.down('xs')]: {
+      width: '100%',
+      zIndex: 100,
+      position: 'absolute'
+      
+    }
+  },
+  userlistHide: {
+     display: 'none'
+     
   },
   chat: {
-    width: "100%",
+    flexGrow:1,
+     
     padding: " 0 0px 5px 5px",
+    height: "calc(100vh - 15px)",
   },
   full: {
     height: "100%",
     width: "100%",
+    
   },
 }));
 
@@ -46,6 +62,10 @@ export default function Chat() {
   const [users, setUsers] = useState([]);
   const [userStatus, setUserStatus] = useState(null);
   const [logoutStatus, setLogoutStatus] = useState(false);
+  const [hideSideBar, setHideSideBar] = useState(false);
+  const [searchedUsers, setSearchedUsers] = useState(null);
+  
+  const matches = useMediaQuery("(max-width:600px)");
 
   const router = useRouter();
   useEffect(() => {
@@ -61,19 +81,20 @@ export default function Chat() {
   };
   async function searchUser(userName) {
     try {
-      const res = await fetch("/api/user?username=" + userName, []);
+      const res = await fetch("/api/users?username=" + userName, []);
       const json = await res.json();
 
       if (json.result === "ok") {
-        const newUsers = [
-          ...users,
-          { ...json.user, messages: [], lastMessage: "", unReadMessages: 0 },
-        ];
-        setUsers(() => {
-          return newUsers;
+         
+        console.log("search result:",json.users);
+         const newUsers = json.users.map((u) => {
+           
+             return { ...u, messages: [], lastMessage: "", unReadMessages: 0 };
+          
         });
-        setPeer(json.user);
-        //selectUser(()=>json.user);
+         
+        setSearchedUsers(newUsers);
+
       } else if (json.description === "login  requested!")
         router.replace("/login");
       else {
@@ -84,17 +105,28 @@ export default function Chat() {
     }
   }
 
-  // user click on the userlist
+  // user click on the userlist or searchresult list
 
   function selectUser(user) {
     setPeer(user);
 
     //update unreadMessages number
-    const newUsers = users.map((u) => {
-      if (user._id === u._id) {
-        return { ...u, unReadMessages: 0 };
-      } else return u;
-    });
+    let found = false;
+    let newUsers;
+      for (let i = 0; i < users.length; i++){
+        if (users[i]._id === user._id) {
+          found = true;          
+        }      
+    }
+    if (found) {
+      newUsers = users.map((u) => {
+        if (user._id === u._id) {
+          return { ...u, unReadMessages: 0 };
+        } else return u;
+      });
+    } else {
+      newUsers = [...users, user];
+    }
     setUsers(() => newUsers);
     /**update server side conversation status 20210120 */
     postData("/api/peer", { peerid: user._id });
@@ -127,23 +159,33 @@ export default function Chat() {
     // console.log(users);
   }
 
+
+
+
+
+  
   /// receive status message
   useEffect(() => {
     if (userStatus !== null) {
       const { sender, status } = userStatus;
-      
-      if (users.length > 0) {
-        const newUsers = users.map((u) => {
-          if (u._id === sender) return { ...u, status };
-          else return u;
-        });
-        //console.log("statuschange:", newUsers);
-        setUsers(() => newUsers);
+      if (user._id === sender) {
+        const newUser = { ...user, status };
+        setUser(newUser);
       }
-      if (peer?._id === sender)
-        setPeer(() => {
-          return { ...peer, status };
-        });
+      else {
+        if (users.length > 0) {
+          const newUsers = users.map((u) => {
+            if (u._id === sender) return { ...u, status };
+            else return u;
+          });
+          //console.log("statuschange:", newUsers);
+          setUsers(() => newUsers);
+        }
+        if (peer?._id === sender)
+          setPeer(() => {
+            return { ...peer, status };
+          });
+      }
     }
   }, [userStatus]);
 
@@ -301,11 +343,17 @@ export default function Chat() {
 
     const socket2 = socketIOClient("/", { query: { token: tempToken } });
 
-    socket2.on("connect", () => {});
+    socket2.on("connect", () => {
+
+       setUserStatus(() => { return { sender: tempuser._id, status: "online" }; });
+
+    });
     socket2.on("message", (data) => {
       setNewMessage(data);
     });
-    socket2.on("disconnect", () => {});
+    socket2.on("disconnect", () => {
+      setUserStatus(() => { return { sender: tempuser._id, status: "offline" }; });
+      });
     socket2.on("status", (data) => {
       
       setUserStatus(() => data);
@@ -313,34 +361,48 @@ export default function Chat() {
     setSocket(socket2);
     
     return () => {
+      console.log("chat unmount");
       socket2.close();
       
     };
   }, []);
+
+
+  function hideUserList(hide) {
+    if(matches)
+    setHideSideBar(hide);
+  }
 
   if (!user) return <>Loading...</>;
   else
     return (
       <>
         <CssBaseline>
-          <Container className={styles.root}>
-            <Paper className={styles.full}>
-              <Box display="flex" className={styles.full}>
-                <Box className={styles.userlist}>
+          <Container maxWidth="lg">
+            <Paper className={styles.paper} elevation={matches?0:3}>
+              <Box className={styles.root}>
+                <Box className={hideSideBar? styles.userlistHide:styles.userlist}>
+
+
                   <UserList
                     users={users}
                     user={user}
                     selectUser={selectUser}
                     searchUser={searchUser}
-                    logout={logout}
+                    logout={logout}                     
+                    peer={peer}
+                    searchedUsers={searchedUsers}
+                    hideUserList = {hideUserList}
+                    
                   />
                 </Box>
-                <Box item className={styles.chat}>
+                <Box  className={styles.chat}>
                   <ChatBox
                     user={user}
                     peer={peer}
                     sendMessage={sendMessage}
                     users={users}
+                    hideUserList = {hideUserList}
                   />
                 </Box>
               </Box>

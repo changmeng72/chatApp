@@ -50,7 +50,7 @@ UserSchema.statics.signIn = async function (email,passw) {
                
     } catch (err) {
         console.error(err);
-        return { result: "nok", reCode:500,description:"System busy,please try latter" };
+        return { result: "nok", resCode:500,description:"System busy,please try latter" };
     }   
 }
 UserSchema.statics.updateStatus = async function (userid, newStatus) {
@@ -69,6 +69,16 @@ UserSchema.statics.getUsers = async function () {
     try {
         console.log('get users');
         const users = await this.find()?.select(this.publicField());
+        return { result: 'ok', users };
+    } catch (err) {
+        return {result:'nok',description:"system failure"}
+    }
+}
+UserSchema.statics.getUsersByName = async function (searchName) {
+    try {
+        console.log('get users');
+        const users = await this.find({ username: { $regex: searchName, $options: 'i' } } ).select(this.publicField());
+       
         return { result: 'ok', users };
     } catch (err) {
         return {result:'nok',description:"system failure"}
